@@ -1,4 +1,4 @@
-package com._minuteconcept.spring.ai.controller.openai.controller;
+package com._minuteconcept.spring.ai.openai.controller;
 
 import com._minuteconcept.spring.ai.controller.DefaultChatClientController;
 import org.springframework.ai.chat.client.ChatClient;

@@ -1,20 +1,27 @@
-package com._minuteconcept.spring.ai.controller.openai.config;
+package com._minuteconcept.spring.ai.openai.config;
 
 
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
 @Profile("openai")
 public class OpenAIChatModelConfig {
-   /*   @Bean
+
   public ChatModel ollamaChatModel() {
-        var ollamaApi = new OpenAiApi();
-        var chatModel = new OllamaChatModel(ollamaApi,
-                OllamaOptions.create()
-                        .withModel(OllamaOptions.DEFAULT_MODEL)
-                        .withTemperature(0.9f));
+      var openAiApi = new OpenAiApi(System.getenv("OPENAI_API_KEY"));
+      var openAiChatOptions = OpenAiChatOptions.builder()
+              .withModel("gpt-3.5-turbo")
+              .withTemperature(0.4f)
+              .withMaxTokens(200)
+              .build();
+      var chatModel = new OpenAiChatModel(openAiApi, openAiChatOptions);
         return chatModel;
 
-    }*/
+    }
+
 }
