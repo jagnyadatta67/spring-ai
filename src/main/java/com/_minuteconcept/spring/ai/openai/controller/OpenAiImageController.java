@@ -20,11 +20,9 @@ public class OpenAiImageController {
             .withWidth(1024)
             .build();
     private final ImageModel imageModel;
-    private final RestTemplate restTemplate;
     @Autowired
-    public OpenAiImageController(ImageModel imageModel, RestTemplate restTemplate) {
+    public OpenAiImageController(ImageModel imageModel) {
         this.imageModel = imageModel;
-        this.restTemplate=restTemplate;
     }
 
     /**
