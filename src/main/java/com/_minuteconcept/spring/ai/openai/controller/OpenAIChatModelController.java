@@ -69,17 +69,6 @@ public class OpenAIChatModelController {
     }
 
 
-    @GetMapping("/getDescription")
-    public String getDescription(@RequestParam("file")MultipartFile file) throws IOException {
-        byte[] imageData = file.getBytes();
-        var userMessage = new UserMessage(
-                "Based on the image  generate a detailed product description. The description should be casual and trendy, incorporating keywords related to the product.", // content
-                List.of(new Media(MimeTypeUtils.IMAGE_PNG, imageData))); // media
-        ChatResponse response = chatModel.call(new Prompt(List.of(userMessage)));
-        return response.getResult().getOutput().getContent();
-
-    }
-
 
 
 
