@@ -28,8 +28,9 @@ public class OpenAiImageController {
             .withHeight(1024)
             .withWidth(1024)
             .build();
+
     private final ImageModel imageModel;
-    private final ChatModel chatModel;;
+    private final ChatModel chatModel;
     @Autowired
     public OpenAiImageController(ImageModel imageModel,ChatModel chatModel) {
         this.chatModel = chatModel;
