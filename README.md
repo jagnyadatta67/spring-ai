@@ -24,6 +24,7 @@ This project is based on the [Spring AI](https://spring.io/projects/spring-ai) p
 
 - Maven
 - Spring AI
+- Java 17
   
 ## Installation and api key
  - The project is created with Maven, so you just need to import it to your IDE and build the project to resolve the dependencies
