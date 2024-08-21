@@ -16,10 +16,7 @@ import java.util.List;
 @RestController
 public class DefaultChatClientController {
 
-
-
     private final ChatClient chatClient;
-
     public DefaultChatClientController(ChatClient.Builder chatClientBuilder) {
         this.chatClient = chatClientBuilder.build();
     }
@@ -43,8 +40,9 @@ public class DefaultChatClientController {
      * An example to return the ChatResponse object that contains
      * the metadata is shown below by invoking chatResponse() after the call() method.
      *
+     *
      * @param userInput
-     * @return
+     * @return ChatResponse The chat completion (e.g. generation) response returned by an AI provider.
      */
 
     @GetMapping("/aiChatResponse")
@@ -56,17 +54,16 @@ public class DefaultChatClientController {
     }
 
     /**
-     * You often want to return an entity class that is mapped from the returned String.
-     * The entity method provides this functionality.
+     * You often want to return an entity class that is mapped from the returned String. The entity method provides this functionality.
      *
      * For example, given the Java record:
-     * @return
+     * @return Here Subsidiary is the return type with List of String
      */
 
     @GetMapping("/aiEntityResponse")
     public Subsidiary getFilms() {
         Subsidiary actorFilms = chatClient.prompt()
-                .user("list of subsidiary for landmarkgroup")
+                .user("list of subsidiary for Reliance Group in india")
                 .call()
                 .entity(Subsidiary.class);
         return actorFilms;
