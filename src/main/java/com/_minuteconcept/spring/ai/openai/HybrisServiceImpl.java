@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
-public class HybrisServiceImpl implements Function<HybrisServiceImpl.Request, HybrisServiceImpl.Order> {
+public class HybrisServiceImpl implements Function<HybrisServiceImpl.Request, HybrisServiceImpl.OrderListWsDTO> {
     @Value("${url.lifestyle}")
     private String lifestyleUrl;
 
@@ -38,7 +38,7 @@ public class HybrisServiceImpl implements Function<HybrisServiceImpl.Request, Hy
     public void init() {
         urlMap.put("lifestylein", lifestyleUrl);
         urlMap.put("maxin", maxUrl);
-        urlMap.put("home", homecentreUrl);
+        urlMap.put("homecentrein", homecentreUrl);
     }
 
     @JsonClassDescription("This  contains userId and website")
@@ -49,7 +49,7 @@ public class HybrisServiceImpl implements Function<HybrisServiceImpl.Request, Hy
     public record Response(String orderId, String Status) {
     }
 
-    public Order apply(Request request) {
+    public OrderListWsDTO apply(Request request) {
         try {
             return hybris(request);
         } catch (JsonProcessingException e) {
@@ -60,115 +60,60 @@ public class HybrisServiceImpl implements Function<HybrisServiceImpl.Request, Hy
     @Autowired
     RestTemplate restTemplate;
 
-    public Order hybris(Request request) throws JsonProcessingException {
-        String url = urlMap.get(request.website);
+    public OrderListWsDTO hybris(Request request) throws JsonProcessingException {
+        String url = urlMap.get( urlMap.keySet().stream().filter(k->k.contains(request.website)).findFirst().get());
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            // Parse the JSON
-            JsonNode rootNode = objectMapper.readTree(responseEntity.getBody());
-            JsonNode orderDataList = rootNode.path("orderDataList");
-
-
-            if (orderDataList.isArray() && orderDataList.size() > 0) {
-
-                JsonNode order = orderDataList.get(0);
-
-                // Extract order code
-                String orderCode = order.path("code").asText();
-
-                // Extract delivery address
-                JsonNode deliveryAddress = order.path("deliveryAddress");
-                String formattedAddress = deliveryAddress.path("formattedAddress").asText();
-                String cellphone = deliveryAddress.path("cellphone").asText();
-                String email = deliveryAddress.path("email").asText();
-                DeliveryAddress d=new DeliveryAddress(formattedAddress,cellphone,email);
-                // Extract entries
-                JsonNode entries = order.path("entries");
-                List<Entry> entryList=new ArrayList<>();
-                if (entries.isArray() && entries.size() > 0) {
-                    JsonNode entry = entries.get(0);
-                    JsonNode product = entry.path("product");
-                    String productCode = product.path("code").asText();
-                    String orderEntryTatMessage = entry.path("orderEntryTatMessage").asText();
-                    JsonNode consignmentStatusNode = entry.path("consignmentStatus");
-                    JsonNode historyDataArray = consignmentStatusNode.path("consignmentHistoryData");
-
-                    // Get the last element in the array
-                    JsonNode lastElement = historyDataArray.get(historyDataArray.size() - 1);
-
-                    // Extract the status from the last element
-                    String lastStatus = lastElement.path("status").asText();
-
-                    Entry entry1=new Entry(new Product(productCode),orderEntryTatMessage,new ConsignmentHistoryData(lastStatus));
-                    entryList.add(entry1);
-                }
-                    // Extract total price
-                    JsonNode totalPrice = order.path("totalPrice");
-                    double totalPriceValue = totalPrice.path("value").asDouble();
-
-                    // Extract payment mode
-                    JsonNode paymentMode = order.path("paymentMode");
-                    String paymentModeCode = paymentMode.path("code").asText();
-
-
-                    return new Order(orderCode, d,entryList,new TotalPrice(totalPriceValue),new PaymentMode(paymentModeCode));
-
-
-
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-
-        return null;
+        ResponseEntity<OrderListWsDTO> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, OrderListWsDTO.class);
+        return responseEntity.getBody();
     }
 
 
     @JsonClassDescription("This  contains code deliveryAddress entries totalPrice and paymentMode")
-    public record Order(
-            String code,
-            DeliveryAddress deliveryAddress,
-            List<Entry> entries,
-            TotalPrice totalPrice,
-            PaymentMode paymentMode
-    ) {}
+    public record OrderListWsDTO(
+            List<OrderData> orderDataList
+    ) {
+        public record OrderData(
+                String code,
+                DeliveryAddress deliveryAddress,
+                List<Entry> entries,
+                PaymentMode paymentMode,
+                TotalPrice totalPrice
+        ) {
+            public record DeliveryAddress(
+                    String cellphone,
+                    String formattedAddress
+            ) {}
 
-    // Represents the delivery address
-    public record DeliveryAddress(
-            String formattedAddress,
-            String cellphone,
-            String email
-    ) {}
+            public record Entry(
+                    ConsignmentStatus consignmentStatus,
+                    String orderEntryTatMessage,
+                    Product product
+            ) {
+                public record ConsignmentStatus(
+                        String consignmentCode,
+                        List<ConsignmentHistoryData> consignmentHistoryData
+                ) {
+                    public record ConsignmentHistoryData(
+                            String formattedDate,
+                            boolean isReturnStatus,
+                            String status
+                    ) {}
+                }
 
-    // Represents an entry in the order
-    public record Entry(
-            Product product,
-            String orderEntryTatMessage,
-            ConsignmentHistoryData consignmentStatus
-    ) {}
+                public record Product(
+                        String code,
+                        String name
+                ) {}
+            }
 
-    // Represents a product in an entry
-    public record Product(
-            String code
-    ) {}
+            public record PaymentMode(
+                    String code
+            ) {}
 
-    // Represents consignment history data
-    public record ConsignmentHistoryData(
-            String status
-    ) {}
-
-    // Represents the total price
-    public record TotalPrice(
-            double value
-    ) {}
-
-    // Represents the payment mode
-    public record PaymentMode(
-            String code
-    ) {}
+            public record TotalPrice(
+                    String formattedValue
+            ) {}
+        }
+    }
 }

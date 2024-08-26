@@ -11,6 +11,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
 import com._minuteconcept.spring.ai.openai.HybrisServiceImpl;
+import com._minuteconcept.spring.ai.openai.HybrisServiceTATImpl;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
@@ -85,9 +86,16 @@ public class OpenAIChatModelConfig {
 
     @Bean
     @Description("Get the Order code and Status using and userId and website") // function description
-    public Function<HybrisServiceImpl.Request, HybrisServiceImpl.Order> orderStatusService() {
+    public Function<HybrisServiceImpl.Request, HybrisServiceImpl.OrderListWsDTO> orderStatusService() {
         return new HybrisServiceImpl();
     }
+
+    @Bean
+    @Description("Get the Order code and Status using and userId and website") // function description
+    public Function<HybrisServiceTATImpl.Request, HybrisServiceTATImpl.Response> getTatService() {
+        return new HybrisServiceTATImpl();
+    }
+
 
 
 }
