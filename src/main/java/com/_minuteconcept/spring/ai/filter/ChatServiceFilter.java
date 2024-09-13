@@ -28,7 +28,7 @@ public class ChatServiceFilter implements Filter {
         if ( OPENAI.equalsIgnoreCase(uri)) {
             uri = OPENAI_CHAT_MODEL; // default language if none provided
         }else{
-            uri = OLLAMA_CHAT_MODEL;
+            uri = OPENAI_CHAT_MODEL;
         }
         logger.info("uri is {}", uri);
         // Store the language in the context
