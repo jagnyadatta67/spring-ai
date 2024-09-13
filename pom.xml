@@ -28,10 +28,9 @@
 	</scm>
 	<properties>
 		<spring-ai.version>1.0.0-M1</spring-ai.version>
-		<properties>
+
 			<maven.compiler.source>17</maven.compiler.source>
 			<maven.compiler.target>17</maven.compiler.target>
-		</properties>
 	</properties>
 	<dependencies>
 		<dependency>
