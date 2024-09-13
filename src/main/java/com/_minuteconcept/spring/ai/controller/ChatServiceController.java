@@ -8,6 +8,7 @@ import org.springframework.ai.chat.model.Generation;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.converter.BeanOutputConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,6 +21,8 @@ import java.util.Map;
 public class ChatServiceController {
     @Resource
     ChatServiceLocator chatServiceLocator;
+    @Value("classpath:/system-message.st")
+    private org.springframework.core.io.Resource jokeResource;
 
     /**
      *  In this simple example, the user input sets the contents of the user message.
@@ -78,16 +81,12 @@ public class ChatServiceController {
 
 
 
-    private static Prompt getPrompt(String message, BeanOutputConverter<List<Outfit>> outputConverter) {
+    private  Prompt getPrompt(String message, BeanOutputConverter<List<Outfit>> outputConverter) {
         String format = outputConverter.getFormat();
-        String template = """
-          top 3 best outfit with outfit name for {message} shirt in {format}
-        """;
 
-        return new Prompt(new PromptTemplate(template,
-                Map.of("format", format
-                        ,               "message", message)
-        ).createMessage());
+        PromptTemplate promptTemplate = new PromptTemplate((org.springframework.core.io.Resource) jokeResource);
+        Prompt prompt = promptTemplate.create(Map.of("format", format, "message", message));
+        return prompt;
     }
 
 
